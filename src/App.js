@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -36,7 +37,28 @@ function App() {
       link.remove();
     } catch (e) {
       console.error(e);
-      alert("Erreur lors de la génération du PDF.");
+      alert("Erreur lors de la génération de la facture.");
+    }
+  };
+
+  const downloadDevis = async () => {
+    const payload = {
+      devis_number: "DEV-001",
+      client_name: clientName,
+      items
+    };
+    try {
+      const res = await axios.post(`${API_URL}/api/generate_devis`, payload, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `devis_${payload.devis_number}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (e) {
+      console.error(e);
+      alert("Erreur lors de la génération du devis.");
     }
   };
 
@@ -96,6 +118,12 @@ function App() {
           className="px-6 py-2 bg-blue-600 text-white rounded shadow"
         >
           Télécharger Facture PDF
+        </button>
+        <button
+          onClick={downloadDevis}
+          className="ml-2 px-6 py-2 bg-green-600 text-white rounded shadow"
+        >
+          Télécharger Devis PDF
         </button>
       </section>
 
