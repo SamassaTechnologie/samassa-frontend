@@ -61,6 +61,27 @@ function App() {
       alert("Erreur lors de la génération du devis.");
     }
   };
+const downloadRecu = async () => {
+  const payload = {
+    recu_number: "REC-001",
+    client_name: clientName,
+    amount: 15000,  // tu peux mettre dynamique plus tard
+    payment_method: "Espèces"
+  };
+  try {
+    const res = await axios.post(`${API_URL}/api/generate_recu`, payload, { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `recu_${payload.recu_number}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de la génération du reçu.");
+  }
+};
 
   return (
     <div className="min-h-screen p-6 bg-gray-100">
@@ -125,6 +146,12 @@ function App() {
         >
           Télécharger Devis PDF
         </button>
+            <button
+  onClick={downloadRecu}
+  className="ml-2 px-6 py-2 bg-yellow-600 text-white rounded shadow"
+>
+  Télécharger Reçu PDF
+</button>
       </section>
 
       <footer className="mt-10 text-gray-500 text-sm">
