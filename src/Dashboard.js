@@ -9,7 +9,7 @@ function Dashboard() {
   const [devis, setDevis] = useState([]);
   const [recus, setRecus] = useState([]);
 
-  // Charger les données une seule fois au démarrage
+  // Charger les données depuis le backend
   useEffect(() => {
     axios.get(`${API_URL}/api/factures`).then(res => setFactures(res.data));
     axios.get(`${API_URL}/api/devis`).then(res => setDevis(res.data));
@@ -21,7 +21,7 @@ function Dashboard() {
       <h1 className="text-2xl font-bold mb-4">📊 Tableau de bord</h1>
 
       {/* Onglets */}
-      <div className="flex space-x-4 mb-4">
+      <div className="flex space-x-4 mb-6">
         <button
           onClick={() => setActiveTab("factures")}
           className={`px-4 py-2 rounded ${activeTab==="factures" ? "bg-blue-600 text-white" : "bg-gray-300"}`}
@@ -42,7 +42,7 @@ function Dashboard() {
         </button>
       </div>
 
-      {/* Tableau factures */}
+      {/* Tableau Factures */}
       {activeTab === "factures" && (
         <table className="w-full border bg-white shadow">
           <thead>
@@ -64,7 +64,7 @@ function Dashboard() {
         </table>
       )}
 
-      {/* Tableau devis */}
+      {/* Tableau Devis */}
       {activeTab === "devis" && (
         <table className="w-full border bg-white shadow">
           <thead>
@@ -86,7 +86,7 @@ function Dashboard() {
         </table>
       )}
 
-      {/* Tableau reçus */}
+      {/* Tableau Reçus */}
       {activeTab === "recus" && (
         <table className="w-full border bg-white shadow">
           <thead>
