@@ -9,94 +9,89 @@ function Dashboard() {
   const [devis, setDevis] = useState([]);
   const [recus, setRecus] = useState([]);
 
-  // Charger les données depuis le backend
-  useEffect(() => {
-    axios.get(`${API_URL}/api/factures`).then(res => setFactures(res.data));
-    axios.get(`${API_URL}/api/devis`).then(res => setDevis(res.data));
-    axios.get(`${API_URL}/api/recus`).then(res => setRecus(res.data));
-  }, []);
+  const loadAll = async () => {
+    try {
+      const [fRes, dRes, rRes] = await Promise.all([
+        axios.get(`${API_URL}/api/factures`),
+        axios.get(`${API_URL}/api/devis`),
+        axios.get(`${API_URL}/api/recus`)
+      ]);
+      setFactures(fRes.data);
+      setDevis(dRes.data);
+      setRecus(rRes.data);
+    } catch (e) {
+      console.error("Failed to load dashboard data", e);
+      alert("Erreur chargement données (voir console).");
+    }
+  };
+
+  useEffect(() => { loadAll(); }, []);
+
+  const deleteFacture = async (id) => {
+    if (!window.confirm("Supprimer cette facture ?")) return;
+    await axios.delete(`${API_URL}/api/factures/${id}`);
+    setFactures(factures.filter(f => f.id !== id));
+  };
+  const deleteDevis = async (id) => {
+    if (!window.confirm("Supprimer ce devis ?")) return;
+    await axios.delete(`${API_URL}/api/devis/${id}`);
+    setDevis(devis.filter(d => d.id !== id));
+  };
+  const deleteRecu = async (id) => {
+    if (!window.confirm("Supprimer ce reçu ?")) return;
+    await axios.delete(`${API_URL}/api/recus/${id}`);
+    setRecus(recus.filter(r => r.id !== id));
+  };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold mb-4">📊 Tableau de bord</h1>
 
-      {/* Onglets */}
       <div className="flex space-x-4 mb-6">
-        <button
-          onClick={() => setActiveTab("factures")}
-          className={`px-4 py-2 rounded ${activeTab==="factures" ? "bg-blue-600 text-white" : "bg-gray-300"}`}
-        >
-          Factures
-        </button>
-        <button
-          onClick={() => setActiveTab("devis")}
-          className={`px-4 py-2 rounded ${activeTab==="devis" ? "bg-green-600 text-white" : "bg-gray-300"}`}
-        >
-          Devis
-        </button>
-        <button
-          onClick={() => setActiveTab("recus")}
-          className={`px-4 py-2 rounded ${activeTab==="recus" ? "bg-yellow-600 text-white" : "bg-gray-300"}`}
-        >
-          Reçus
-        </button>
+        <button onClick={() => setActiveTab("factures")} className={`px-4 py-2 rounded ${activeTab==="factures" ? "bg-blue-600 text-white" : "bg-gray-300"}`}>Factures</button>
+        <button onClick={() => setActiveTab("devis")} className={`px-4 py-2 rounded ${activeTab==="devis" ? "bg-green-600 text-white" : "bg-gray-300"}`}>Devis</button>
+        <button onClick={() => setActiveTab("recus")} className={`px-4 py-2 rounded ${activeTab==="recus" ? "bg-yellow-600 text-white" : "bg-gray-300"}`}>Reçus</button>
       </div>
 
-      {/* Tableau Factures */}
       {activeTab === "factures" && (
         <table className="w-full border bg-white shadow">
-          <thead>
-            <tr className="bg-blue-200">
-              <th className="p-2 border">Numéro</th>
-              <th className="p-2 border">Client</th>
-              <th className="p-2 border">Total</th>
-            </tr>
-          </thead>
+          <thead><tr className="bg-blue-200"><th className="p-2 border">Numéro</th><th className="p-2 border">Client</th><th className="p-2 border">Total</th><th className="p-2 border">Actions</th></tr></thead>
           <tbody>
             {factures.map(f => (
               <tr key={f.id}>
                 <td className="border p-2">{f.numero}</td>
                 <td className="border p-2">{f.client}</td>
                 <td className="border p-2">{f.total} F CFA</td>
+                <td className="border p-2">
+                  <button onClick={() => deleteFacture(f.id)} className="bg-red-600 text-white px-2 py-1 rounded">Supprimer</button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
 
-      {/* Tableau Devis */}
       {activeTab === "devis" && (
         <table className="w-full border bg-white shadow">
-          <thead>
-            <tr className="bg-green-200">
-              <th className="p-2 border">Numéro</th>
-              <th className="p-2 border">Client</th>
-              <th className="p-2 border">Total</th>
-            </tr>
-          </thead>
+          <thead><tr className="bg-green-200"><th className="p-2 border">Numéro</th><th className="p-2 border">Client</th><th className="p-2 border">Total</th><th className="p-2 border">Actions</th></tr></thead>
           <tbody>
             {devis.map(d => (
               <tr key={d.id}>
                 <td className="border p-2">{d.numero}</td>
                 <td className="border p-2">{d.client}</td>
                 <td className="border p-2">{d.total} F CFA</td>
+                <td className="border p-2">
+                  <button onClick={() => deleteDevis(d.id)} className="bg-red-600 text-white px-2 py-1 rounded">Supprimer</button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
 
-      {/* Tableau Reçus */}
       {activeTab === "recus" && (
         <table className="w-full border bg-white shadow">
-          <thead>
-            <tr className="bg-yellow-200">
-              <th className="p-2 border">Numéro</th>
-              <th className="p-2 border">Client</th>
-              <th className="p-2 border">Montant</th>
-              <th className="p-2 border">Moyen</th>
-            </tr>
-          </thead>
+          <thead><tr className="bg-yellow-200"><th className="p-2 border">Numéro</th><th className="p-2 border">Client</th><th className="p-2 border">Montant</th><th className="p-2 border">Moyen</th><th className="p-2 border">Actions</th></tr></thead>
           <tbody>
             {recus.map(r => (
               <tr key={r.id}>
@@ -104,6 +99,9 @@ function Dashboard() {
                 <td className="border p-2">{r.client}</td>
                 <td className="border p-2">{r.montant} F CFA</td>
                 <td className="border p-2">{r.moyen}</td>
+                <td className="border p-2">
+                  <button onClick={() => deleteRecu(r.id)} className="bg-red-600 text-white px-2 py-1 rounded">Supprimer</button>
+                </td>
               </tr>
             ))}
           </tbody>
